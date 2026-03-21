@@ -111,7 +111,7 @@ WeCatch 是一个面向公司内部公众号运营人员的工具，用于抓取
 | content | text | 留言内容 |
 | nickname | varchar | 留言者昵称 |
 | comment_time | timestamp | 留言时间 |
-| category | varchar | 分类：question / correction / negative / suggestion / discussion / cooperation / worthless |
+| category | varchar | 分类：question / correction / negative / suggestion / discussion / cooperation / worthless / unclassified |
 | status | varchar | 处理状态：pending / replied / ignored |
 | created_at | timestamp | 创建时间 |
 
@@ -175,7 +175,7 @@ WeCatch 是一个面向公司内部公众号运营人员的工具，用于抓取
 ### Content Script
 
 - 仅在 `mp.weixin.qq.com` 域名下激活
-- 拦截留言相关接口请求
+- 通过拦截 fetch/XMLHttpRequest 捕获留言相关接口请求（Manifest V3 下 Service Worker 不支持 webRequest 阻塞模式，因此在 Content Script 层拦截）
 - 等待 Popup 发出抓取指令后，将拦截到的数据发送给后端
 
 ### 管理后台页面 (dashboard.html)
@@ -190,8 +190,10 @@ WeCatch 是一个面向公司内部公众号运营人员的工具，用于抓取
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| POST | /api/auth/login | 登录 |
+| POST | /api/auth/login | 登录，返回 JWT token |
 | POST | /api/auth/logout | 登出 |
+
+认证方式：JWT。插件和管理后台在请求头中携带 `Authorization: Bearer <token>`。
 
 ### 用户管理（管理员）
 
@@ -212,6 +214,30 @@ WeCatch 是一个面向公司内部公众号运营人员的工具，用于抓取
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | POST | /api/comments/batch | 插件批量提交留言数据，后端去重、存储、触发大模型分析 |
+
+**POST /api/comments/batch 请求体格式：**
+
+```json
+{
+  "account": {
+    "wx_account_id": "公众号原始ID",
+    "name": "公众号名称"
+  },
+  "article": {
+    "title": "文章标题",
+    "url": "文章链接",
+    "published_at": "2026-03-21T10:00:00Z"
+  },
+  "comments": [
+    {
+      "wx_comment_id": "微信留言原始ID",
+      "content": "留言内容",
+      "nickname": "留言者昵称",
+      "comment_time": "2026-03-21T12:00:00Z"
+    }
+  ]
+}
+```
 
 ### 文章
 
