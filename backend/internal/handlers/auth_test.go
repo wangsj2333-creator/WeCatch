@@ -9,7 +9,7 @@ import (
 
 	"github.com/wangsj2333-creator/WeCatch/backend/internal/models"
 	"github.com/wangsj2333-creator/WeCatch/backend/internal/services"
-	"gorm.io/driver/sqlite"
+	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
 
