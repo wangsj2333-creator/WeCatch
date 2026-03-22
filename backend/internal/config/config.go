@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"log"
+	"os"
+)
 
 type Config struct {
 	Port        string
@@ -10,11 +13,21 @@ type Config struct {
 }
 
 func Load() *Config {
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		if os.Getenv("APP_ENV") == "development" {
+			jwtSecret = "dev-secret-change-in-production"
+			log.Println("WARNING: using default JWT secret, set JWT_SECRET in production")
+		} else {
+			log.Fatal("JWT_SECRET environment variable is required")
+		}
+	}
+
 	return &Config{
 		Port:        getEnv("PORT", "8080"),
 		DatabaseURL: getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/wecatch?sslmode=disable"),
-		JWTSecret:   getEnv("JWT_SECRET", "dev-secret-change-in-production"),
-		QianwenKey:  getEnv("QIANWEN_API_KEY", ""),
+		JWTSecret:   jwtSecret,
+		QianwenKey:  os.Getenv("QIANWEN_API_KEY"),
 	}
 }
 
