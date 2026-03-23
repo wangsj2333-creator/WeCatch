@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../api/client';
 import type { Article, Comment, CommentStatus } from '../types';
 import { CategoryFilter } from '../components/CategoryFilter';
@@ -25,6 +25,8 @@ interface Props {
 export function WorkspacePage({ onLogout }: Props) {
   const { accountId } = useParams<{ accountId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const accountName = (location.state as { accountName?: string } | null)?.accountName || '';
 
   const [articles, setArticles] = useState<Article[]>([]);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
@@ -88,7 +90,7 @@ export function WorkspacePage({ onLogout }: Props) {
           </h1>
           <div style={{ width: 1, height: 16, background: C.border }} />
           <span style={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>
-            {articles[0]?.account_id ? `公众号 ${accountId}` : ''}
+            {`公众号 ${accountName || accountId}`}
           </span>
         </div>
         <button
@@ -237,17 +239,32 @@ export function WorkspacePage({ onLogout }: Props) {
                   }}>
                     暂无留言
                   </div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {comments.map((comment) => (
-                      <CommentCard
-                        key={comment.id}
-                        comment={comment}
-                        onStatusChange={handleStatusChange}
-                      />
-                    ))}
-                  </div>
-                )}
+                ) : (() => {
+                  // Build two-level tree: top-level comments with their replies nested below
+                  const topLevel = comments.filter((c) => !c.reply_to_wx_id);
+                  const repliesMap = new Map<string, typeof comments>();
+                  comments.forEach((c) => {
+                    if (c.reply_to_wx_id) {
+                      const list = repliesMap.get(c.reply_to_wx_id) || [];
+                      list.push(c);
+                      repliesMap.set(c.reply_to_wx_id, list);
+                    }
+                  });
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {topLevel.map((comment) => (
+                        <div key={comment.id}>
+                          <CommentCard comment={comment} onStatusChange={handleStatusChange} />
+                          {(repliesMap.get(comment.wx_comment_id) || []).map((reply) => (
+                            <div key={reply.id} style={{ marginLeft: 32, marginTop: 8 }}>
+                              <CommentCard comment={reply} onStatusChange={handleStatusChange} />
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </>
             ) : (
               <div style={{ textAlign: 'center', color: C.muted, paddingTop: 80 }}>

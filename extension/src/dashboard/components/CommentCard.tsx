@@ -90,6 +90,13 @@ export function CommentCard({ comment, onStatusChange }: Props) {
         </div>
       </div>
 
+      {/* Reply indicator */}
+      {comment.reply_to_wx_id && (
+        <p style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>
+          ↩ 回复了一条留言
+        </p>
+      )}
+
       {/* Content */}
       <p style={{
         fontSize: 14, lineHeight: 1.65, color: C.text,

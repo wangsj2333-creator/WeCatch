@@ -24,6 +24,7 @@ func (h *AccountHandler) List(w http.ResponseWriter, r *http.Request) {
 	var accounts []models.Account
 	h.DB.Joins("JOIN user_accounts ON user_accounts.account_id = accounts.id").
 		Where("user_accounts.user_id = ?", userID).
+		Order("last_captured_at DESC NULLS LAST, id DESC").
 		Find(&accounts)
 
 	w.Header().Set("Content-Type", "application/json")

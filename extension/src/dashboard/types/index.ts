@@ -9,6 +9,7 @@ export interface Account {
   id: number;
   wx_account_id: string;
   name: string;
+  last_captured_at?: string | null;
   created_at: string;
 }
 
@@ -37,6 +38,7 @@ export interface Comment {
   id: number;
   article_id: number;
   wx_comment_id: string;
+  reply_to_wx_id: string;
   content: string;
   nickname: string;
   comment_time: string;

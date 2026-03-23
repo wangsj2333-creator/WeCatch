@@ -36,6 +36,7 @@ type batchArticle struct {
 
 type batchComment struct {
 	WxCommentID string    `json:"wx_comment_id"`
+	ReplyToWxID string    `json:"reply_to_wx_id"`
 	Content     string    `json:"content"`
 	Nickname    string    `json:"nickname"`
 	CommentTime time.Time `json:"comment_time"`
@@ -92,6 +93,7 @@ func (h *CommentHandler) Batch(w http.ResponseWriter, r *http.Request) {
 		comment := models.Comment{
 			ArticleID:   article.ID,
 			WxCommentID: c.WxCommentID,
+			ReplyToWxID: c.ReplyToWxID,
 			Content:     c.Content,
 			Nickname:    c.Nickname,
 			CommentTime: c.CommentTime,
@@ -113,6 +115,10 @@ func (h *CommentHandler) Batch(w http.ResponseWriter, r *http.Request) {
 			}(comment.ID, c.Content, req.Article.Title)
 		}
 	}
+
+	// Update account's last captured time
+	now := time.Now()
+	h.DB.Model(&account).Update("last_captured_at", now)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(batchResponse{NewComments: newCount, Skipped: skipped})

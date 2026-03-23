@@ -73,7 +73,7 @@ export function AccountListPage({ onLogout }: Props) {
             {accounts.map((account) => (
               <div
                 key={account.id}
-                onClick={() => navigate(`/accounts/${account.id}`)}
+                onClick={() => navigate(`/accounts/${account.id}`, { state: { accountName: account.name } })}
                 style={{
                   padding: '20px 24px',
                   background: '#fff', border: `1px solid ${C.border}`,
@@ -88,7 +88,11 @@ export function AccountListPage({ onLogout }: Props) {
                   <h3 style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 4 }}>
                     {account.name || account.wx_account_id}
                   </h3>
-                  <p style={{ fontSize: 12, color: C.muted }}>ID: {account.wx_account_id}</p>
+                  <p style={{ fontSize: 12, color: C.muted }}>
+                    最近抓取：{account.last_captured_at
+                      ? new Date(account.last_captured_at).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                      : '从未'}
+                  </p>
                 </div>
                 <span style={{ color: C.primary, fontSize: 18, fontWeight: 300 }}>›</span>
               </div>
