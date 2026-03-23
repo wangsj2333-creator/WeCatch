@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/王圣杰/Desktop/stitch_ \\(1\\)/**)",
+      "Read(//c/Users/王圣杰/Desktop/**)"
+    ]
+  }
+}
