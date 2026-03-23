@@ -6,7 +6,8 @@ type Comment struct {
 	ID            int64     `json:"id" gorm:"primaryKey"`
 	ArticleID     int64     `json:"article_id" gorm:"index;not null"`
 	WxCommentID   string    `json:"wx_comment_id" gorm:"uniqueIndex;not null"`
-	ReplyToWxID   string    `json:"reply_to_wx_id" gorm:"default:''"`
+	ReplyToWxID      string    `json:"reply_to_wx_id" gorm:"default:''"`
+	ReplyToNickname  string    `json:"reply_to_nickname" gorm:"default:''"`
 	Content       string    `json:"content" gorm:"type:text;not null"`
 	Nickname      string    `json:"nickname"`
 	CommentTime   time.Time `json:"comment_time"`

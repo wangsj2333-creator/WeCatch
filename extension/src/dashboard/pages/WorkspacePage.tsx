@@ -4,6 +4,7 @@ import { api } from '../api/client';
 import type { Article, Comment, CommentStatus } from '../types';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { CommentCard } from '../components/CommentCard';
+import { ReplyItem } from '../components/ReplyItem';
 
 const C = {
   primary: '#2D4B3E',
@@ -252,16 +253,28 @@ export function WorkspacePage({ onLogout }: Props) {
                   });
                   return (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                      {topLevel.map((comment) => (
-                        <div key={comment.id}>
-                          <CommentCard comment={comment} onStatusChange={handleStatusChange} />
-                          {(repliesMap.get(comment.wx_comment_id) || []).map((reply) => (
-                            <div key={reply.id} style={{ marginLeft: 32, marginTop: 8 }}>
-                              <CommentCard comment={reply} onStatusChange={handleStatusChange} />
-                            </div>
-                          ))}
-                        </div>
-                      ))}
+                      {topLevel.map((comment) => {
+                        const replies = repliesMap.get(comment.wx_comment_id) || [];
+                        return (
+                          <div key={comment.id}>
+                            <CommentCard comment={comment} onStatusChange={handleStatusChange} />
+                            {replies.length > 0 && (
+                              <div style={{
+                                marginTop: 2,
+                                marginLeft: 20,
+                                padding: '0 16px',
+                                borderLeft: '2px solid rgba(45,75,62,0.15)',
+                                background: 'rgba(237,241,239,0.5)',
+                                borderRadius: '0 0 8px 0',
+                              }}>
+                                {replies.map((reply) => (
+                                  <ReplyItem key={reply.id} reply={reply} />
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   );
                 })()}

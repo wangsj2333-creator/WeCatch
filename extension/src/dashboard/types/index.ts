@@ -39,6 +39,7 @@ export interface Comment {
   article_id: number;
   wx_comment_id: string;
   reply_to_wx_id: string;
+  reply_to_nickname: string;
   content: string;
   nickname: string;
   comment_time: string;

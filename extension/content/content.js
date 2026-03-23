@@ -95,50 +95,98 @@
 
   // ── Comments fetch for selected articles ──────────────────────────────────
 
+  // Fetch all top-level comments for an article, paginating with `begin`.
+  async function fetchAllTopLevelComments(commentId) {
+    let all = [];
+    let begin = 0;
+    const count = 50;
+    let articleMeta = null;
+
+    while (true) {
+      const json = await apiFetch(appmsgcommentUrl({
+        action: "list_comment",
+        comment_id: commentId,
+        begin: String(begin),
+        count: String(count),
+        filtertype: "0",
+        day: "0",
+        type: "2",
+        max_id: "0",
+      }));
+
+      const parsed = typeof json.comment_list === "string"
+        ? JSON.parse(json.comment_list)
+        : json.comment_list;
+      const batch = parsed?.comment || [];
+
+      if (!articleMeta) {
+        articleMeta = {
+          title: parsed?.title || json.base_info?.title || "",
+          url: json.base_info?.url || parsed?.url || "",
+          published_at: json.base_info?.create_time
+            ? new Date(Number(json.base_info.create_time) * 1000).toISOString()
+            : new Date().toISOString(),
+        };
+      }
+
+      all = all.concat(batch);
+      if (batch.length < count) break;
+      begin += batch.length;
+    }
+
+    return { article: articleMeta, topLevelComments: all };
+  }
+
+  // Fetch all replies for a single top-level comment, paginating with max_reply_id cursor.
+  async function fetchAllReplies(commentId, contentId, maxReplyId) {
+    const all = [];
+    let cursor = maxReplyId;
+    const limit = 50;
+
+    while (true) {
+      const json = await apiFetch(appmsgcommentUrl({
+        action: "get_comment_reply",
+        comment_id: commentId,
+        content_id: String(contentId),
+        limit: String(limit),
+        max_reply_id: String(cursor),
+        clear_unread: "0",
+        fingerprint: "0",
+      }));
+
+      const batch = json.reply_list?.reply_list || [];
+      all.push(...batch);
+
+      const nextCursor = json.reply_list?.max_reply_id;
+      // Stop if fewer results than limit or cursor is exhausted
+      if (batch.length < limit || !nextCursor || nextCursor <= 1) break;
+      cursor = nextCursor - 1;
+    }
+
+    return all;
+  }
+
   async function fetchCommentsByArticle(selectedCommentIds) {
     const groups = await Promise.all(
       selectedCommentIds.map(async (commentId) => {
         try {
-          const json = await apiFetch(appmsgcommentUrl({
-            action: "list_comment",
-            comment_id: commentId,
-            begin: "0",
-            count: "50",
-            filtertype: "0",
-            day: "0",
-            type: "2",
-            max_id: "0",
-          }));
+          const { article, topLevelComments } = await fetchAllTopLevelComments(commentId);
+          const comments = [];
 
-          console.log("[WeCatch] list_comment top-level keys:", Object.keys(json));
-          if (json.base_info) console.log("[WeCatch] list_comment base_info:", JSON.stringify(json.base_info));
-
-          const parsed = typeof json.comment_list === "string"
-            ? JSON.parse(json.comment_list)
-            : json.comment_list;
-          const topLevelComments = parsed?.comment || json.reply_list?.reply_list || [];
-          if (topLevelComments.length > 0) console.log("[WeCatch] list_comment comment[0]:", JSON.stringify(topLevelComments[0]));
-
-          // Flatten top-level comments + their replies, preserving parent reference
-          const rawComments = [];
           for (const c of topLevelComments) {
-            rawComments.push({ raw: c, parentContentId: null });
-            const replies = c.reply?.reply_list || c.new_reply?.reply_list || [];
-            for (const r of replies) {
-              rawComments.push({ raw: r, parentContentId: c.content_id });
+            comments.push(normaliseTopLevel(c));
+            const replyTotal = c.new_reply?.reply_total_cnt || 0;
+            if (replyTotal > 0) {
+              const maxReplyId = c.new_reply?.max_reply_id || 1;
+              const replies = await fetchAllReplies(commentId, c.content_id, maxReplyId);
+              for (const r of replies) {
+                comments.push(normaliseReply(r, String(c.content_id)));
+              }
             }
           }
 
-          // Extract article metadata from the response or fall back to item data
-          const article = {
-            title: json.base_info?.title || json.title || "",
-            url: json.base_info?.url || json.url || "",
-            published_at: json.base_info?.create_time
-              ? new Date(Number(json.base_info.create_time) * 1000).toISOString()
-              : new Date().toISOString(),
-          };
-
-          return { article, comments: rawComments.map(({ raw, parentContentId }) => normaliseComment(raw, parentContentId)) };
+          console.log("[WeCatch] article:", article.title, "| top-level:", topLevelComments.length, "| total:", comments.length);
+          return { article, comments };
         } catch (e) {
           console.warn("[WeCatch] failed to fetch comments for", commentId, e);
           return null;
@@ -151,18 +199,33 @@
 
   // ── Normalisation ──────────────────────────────────────────────────────────
 
-  function normaliseComment(raw, parentContentId) {
-    // content_id is the globally unique ID for each comment across all articles
-    const id = String(raw.content_id ?? raw.id ?? raw.fake_id ?? Date.now());
-    const content = raw.content ?? "";
-    const nickname = raw.nick_name ?? raw.nickname ?? raw.author ?? "unknown";
-    const ts = raw.post_time ?? raw.create_time ?? raw.comment_time ?? raw.time;
-    const comment_time = ts
-      ? new Date(Number(ts) * 1000).toISOString()
-      : new Date().toISOString();
-    // If parentContentId is provided, this comment is a reply to that comment
-    const reply_to_wx_id = parentContentId ? String(parentContentId) : "";
-    return { wx_comment_id: id, reply_to_wx_id, content, nickname, comment_time };
+  function normaliseTopLevel(raw) {
+    return {
+      wx_comment_id: String(raw.content_id),
+      reply_to_wx_id: "",
+      reply_to_nickname: "",
+      content: raw.content ?? "",
+      nickname: raw.nick_name ?? "unknown",
+      comment_time: raw.post_time
+        ? new Date(Number(raw.post_time) * 1000).toISOString()
+        : new Date().toISOString(),
+    };
+  }
+
+  // Replies belong to a top-level comment (reply_to_wx_id = parent content_id).
+  // reply_to_nickname records who within the thread they replied to (may be empty
+  // if they replied directly to the top-level comment).
+  function normaliseReply(raw, parentContentId) {
+    return {
+      wx_comment_id: `${parentContentId}_${raw.reply_id}`,
+      reply_to_wx_id: parentContentId,
+      reply_to_nickname: raw.to_nick_name || "",
+      content: raw.content ?? "",
+      nickname: raw.nick_name ?? "unknown",
+      comment_time: raw.create_time
+        ? new Date(Number(raw.create_time) * 1000).toISOString()
+        : new Date().toISOString(),
+    };
   }
 
   function extractAccount() {

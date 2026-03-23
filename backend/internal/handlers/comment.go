@@ -35,11 +35,12 @@ type batchArticle struct {
 }
 
 type batchComment struct {
-	WxCommentID string    `json:"wx_comment_id"`
-	ReplyToWxID string    `json:"reply_to_wx_id"`
-	Content     string    `json:"content"`
-	Nickname    string    `json:"nickname"`
-	CommentTime time.Time `json:"comment_time"`
+	WxCommentID     string    `json:"wx_comment_id"`
+	ReplyToWxID     string    `json:"reply_to_wx_id"`
+	ReplyToNickname string    `json:"reply_to_nickname"`
+	Content         string    `json:"content"`
+	Nickname        string    `json:"nickname"`
+	CommentTime     time.Time `json:"comment_time"`
 }
 
 type batchResponse struct {
@@ -91,14 +92,15 @@ func (h *CommentHandler) Batch(w http.ResponseWriter, r *http.Request) {
 		}
 
 		comment := models.Comment{
-			ArticleID:   article.ID,
-			WxCommentID: c.WxCommentID,
-			ReplyToWxID: c.ReplyToWxID,
-			Content:     c.Content,
-			Nickname:    c.Nickname,
-			CommentTime: c.CommentTime,
-			Category:    models.CategoryUnclassified,
-			Status:      models.StatusPending,
+			ArticleID:       article.ID,
+			WxCommentID:     c.WxCommentID,
+			ReplyToWxID:     c.ReplyToWxID,
+			ReplyToNickname: c.ReplyToNickname,
+			Content:         c.Content,
+			Nickname:        c.Nickname,
+			CommentTime:     c.CommentTime,
+			Category:        models.CategoryUnclassified,
+			Status:          models.StatusPending,
 		}
 		h.DB.Create(&comment)
 		newCount++

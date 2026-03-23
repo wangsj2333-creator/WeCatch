@@ -93,7 +93,7 @@ export function CommentCard({ comment, onStatusChange }: Props) {
       {/* Reply indicator */}
       {comment.reply_to_wx_id && (
         <p style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>
-          ↩ 回复了一条留言
+          ↩ {comment.reply_to_nickname ? `回复 @${comment.reply_to_nickname}` : '回复顶层留言'}
         </p>
       )}
 
