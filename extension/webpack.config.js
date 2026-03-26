@@ -1,40 +1,26 @@
 const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
+  mode: 'development',
+  devtool: 'cheap-source-map',
   entry: {
-    dashboard: './src/dashboard/index.tsx',
+    'service-worker': './src/background/service-worker.js',
+    'content-script': './src/content/content-script.js',
+    popup: './src/popup/index.jsx',
+    dashboard: './src/dashboard/index.jsx',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
-    clean: true,
   },
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
+        test: /\.(js|jsx)$/,
+        use: 'babel-loader',
         exclude: /node_modules/,
       },
     ],
   },
-  resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
-  },
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: './public/dashboard.html',
-      filename: 'dashboard.html',
-      chunks: ['dashboard'],
-    }),
-    new CopyPlugin({
-      patterns: [
-        { from: 'manifest.json', to: 'manifest.json' },
-        { from: 'popup', to: 'popup' },
-        { from: 'content', to: 'content' },
-      ],
-    }),
-  ],
+  resolve: { extensions: ['.js', '.jsx'] },
 };

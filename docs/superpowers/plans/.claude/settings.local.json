@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(API_KEY=test QIANWEN_API_KEY=test timeout 3 go run cmd/server/main.go)",
+      "Bash(echo \"exit code: $?\")",
+      "Read(//c/Internship/WeCatch/extension/dist/popup/**)",
+      "Read(//c/Internship/WeCatch/extension/dist/content/**)"
+    ]
+  }
+}

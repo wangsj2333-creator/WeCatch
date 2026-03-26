@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Internship/WeCatch/backend/internal/**)",
+      "Read(//c/Internship/WeCatch/backend/internal/server/**)",
+      "Read(//c/Internship/WeCatch/backend/internal/tree/**)",
+      "Read(//c/Internship/WeCatch/backend/internal/llm/**)",
+      "Read(//c/Internship/WeCatch/backend/**)",
+      "Bash(go test:*)",
+      "Bash(taskkill /PID 3896 /F)",
+      "Bash(taskkill /PID 28788 /F)",
+      "Bash(powershell -Command \"Stop-Process -Id 3896 -Force; Stop-Process -Id 28788 -Force\")"
+    ]
+  }
+}

@@ -1,26 +1,25 @@
 {
-  "name": "WeCatch",
-  "version": "1.0.0",
   "manifest_version": 3,
-  "description": "Capture WeChat Official Account comments and auto-classify via LLM",
-  "permissions": ["storage"],
-  "host_permissions": [
-    "https://mp.weixin.qq.com/*",
-    "http://localhost:8080/*"
-  ],
-  "action": {
-    "default_popup": "popup/popup.html"
+  "name": "WeCatch",
+  "version": "0.1.0",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["https://mp.weixin.qq.com/*"],
+  "background": {
+    "service_worker": "dist/service-worker.js"
   },
   "content_scripts": [
     {
       "matches": ["https://mp.weixin.qq.com/*"],
-      "js": ["content/content.js"],
-      "run_at": "document_start"
+      "js": ["dist/content-script.js"],
+      "run_at": "document_idle"
     }
   ],
+  "action": {
+    "default_popup": "dist/popup/popup.html"
+  },
   "web_accessible_resources": [
     {
-      "resources": ["dashboard.html"],
+      "resources": ["dist/dashboard.html"],
       "matches": ["<all_urls>"]
     }
   ]
