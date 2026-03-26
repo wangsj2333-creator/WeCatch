@@ -4,7 +4,6 @@ import { api } from '../api/client';
 import type { Article, Comment, CommentStatus } from '../types';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { CommentCard } from '../components/CommentCard';
-import { ReplyItem } from '../components/ReplyItem';
 
 const C = {
   primary: '#2D4B3E',
@@ -260,15 +259,18 @@ export function WorkspacePage({ onLogout }: Props) {
                             <CommentCard comment={comment} onStatusChange={handleStatusChange} />
                             {replies.length > 0 && (
                               <div style={{
-                                marginTop: 2,
+                                marginTop: 4,
                                 marginLeft: 20,
-                                padding: '0 16px',
+                                paddingLeft: 16,
                                 borderLeft: '2px solid rgba(45,75,62,0.15)',
-                                background: 'rgba(237,241,239,0.5)',
-                                borderRadius: '0 0 8px 0',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 8,
+                                paddingTop: 8,
+                                paddingBottom: 4,
                               }}>
                                 {replies.map((reply) => (
-                                  <ReplyItem key={reply.id} reply={reply} />
+                                  <CommentCard key={reply.id} comment={reply} onStatusChange={handleStatusChange} />
                                 ))}
                               </div>
                             )}
