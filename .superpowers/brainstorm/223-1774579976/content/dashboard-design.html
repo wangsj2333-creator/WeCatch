@@ -1,0 +1,129 @@
+<h2>Dashboard 完整设计方案</h2>
+<p class="subtitle">确认这个方向后，我们进入 UI 设计阶段</p>
+
+<div class="mockup" style="max-width:900px">
+  <div class="mockup-header">WeCatch 数据看板 — 功能结构预览</div>
+  <div class="mockup-body" style="padding:0;display:flex;height:480px;overflow:hidden">
+
+    <!-- 左侧文章列表 -->
+    <div style="width:240px;min-width:240px;background:#fafafa;border-right:1px solid #e8e8e8;display:flex;flex-direction:column">
+      <div style="padding:12px 16px;border-bottom:1px solid #e8e8e8;font-weight:600;font-size:13px;color:#333">
+        全部文章 <span style="color:#999;font-weight:400">（4篇）</span>
+      </div>
+      <div style="flex:1;overflow-y:auto">
+        <!-- 选中状态 -->
+        <div style="padding:12px 16px;background:#e6f4ff;border-left:3px solid #1677ff;cursor:pointer">
+          <div style="font-size:13px;font-weight:500;color:#333;line-height:1.4;margin-bottom:4px">马斯克最新8大判断：我们正站在文明重启的起点</div>
+          <div style="font-size:11px;color:#999">03-17 · 3条留言</div>
+        </div>
+        <!-- 普通状态 -->
+        <div style="padding:12px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer">
+          <div style="font-size:13px;color:#333;line-height:1.4;margin-bottom:4px">龙虾AI之父预言：未来几周，80%的App将会消失</div>
+          <div style="font-size:11px;color:#999">03-04 · 77条留言</div>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer">
+          <div style="font-size:13px;color:#333;line-height:1.4;margin-bottom:4px">我高中同学从没学过计算机，最近却迷上了开发游戏</div>
+          <div style="font-size:11px;color:#999">03-05 · 1条留言</div>
+        </div>
+        <div style="padding:12px 16px;cursor:pointer">
+          <div style="font-size:13px;color:#333;line-height:1.4;margin-bottom:4px">当 AI 成为一种生活方式</div>
+          <div style="font-size:11px;color:#999">03-03 · 2条留言</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧留言区 -->
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+
+      <!-- 过滤栏 -->
+      <div style="padding:10px 16px;border-bottom:1px solid #e8e8e8;background:#fff;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <!-- 分类多选 -->
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <span style="background:#1677ff;color:#fff;border-radius:12px;padding:3px 10px;font-size:11px;cursor:pointer">全部</span>
+          <span style="background:#f5f5f5;color:#666;border-radius:12px;padding:3px 10px;font-size:11px;cursor:pointer">提问</span>
+          <span style="background:#f5f5f5;color:#666;border-radius:12px;padding:3px 10px;font-size:11px;cursor:pointer">纠错</span>
+          <span style="background:#f5f5f5;color:#666;border-radius:12px;padding:3px 10px;font-size:11px;cursor:pointer">负面</span>
+          <span style="background:#f5f5f5;color:#666;border-radius:12px;padding:3px 10px;font-size:11px;cursor:pointer">建议</span>
+          <span style="background:#f5f5f5;color:#666;border-radius:12px;padding:3px 10px;font-size:11px;cursor:pointer">讨论</span>
+          <span style="background:#f5f5f5;color:#666;border-radius:12px;padding:3px 10px;font-size:11px;cursor:pointer">合作</span>
+        </div>
+        <div style="flex:1"></div>
+        <!-- 时间排序 -->
+        <select style="font-size:11px;padding:3px 8px;border:1px solid #d9d9d9;border-radius:4px;color:#666">
+          <option>最新优先</option>
+          <option>最早优先</option>
+        </select>
+        <!-- 评论人搜索 -->
+        <input style="font-size:11px;padding:3px 8px;border:1px solid #d9d9d9;border-radius:4px;width:100px;color:#666" placeholder="搜索评论人…">
+        <!-- 导出 -->
+        <button style="font-size:11px;padding:3px 10px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;color:#333">导出 Excel</button>
+      </div>
+
+      <!-- 留言列表 -->
+      <div style="flex:1;overflow-y:auto;padding:0 16px">
+
+        <!-- 顶层留言 1：有回复，折叠 -->
+        <div style="padding:14px 0;border-bottom:1px solid #f0f0f0">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:4px">胡猜</div>
+              <div style="font-size:13px;color:#555;line-height:1.6">科技越发达，可人性越来越邪恶。看来AI真要替代人类了。</div>
+              <div style="margin-top:6px;display:flex;align-items:center;gap:8px">
+                <span style="font-size:11px;color:#999">03-23 17:46</span>
+                <span style="background:#fff3cd;color:#856404;border-radius:4px;padding:1px 7px;font-size:11px">负面不满</span>
+                <!-- 折叠回复按钮 -->
+                <span style="font-size:11px;color:#1677ff;cursor:pointer">▶ 2条回复</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 顶层留言 2：展开状态示例 -->
+        <div style="padding:14px 0;border-bottom:1px solid #f0f0f0">
+          <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:4px">土龙</div>
+          <div style="font-size:13px;color:#555;line-height:1.6">重组科技与文化的价值实力！是科技作用高难开发！人文素养推动高质量发展的进步</div>
+          <div style="margin-top:6px;display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:#999">03-22 21:01</span>
+            <span style="background:#d4edda;color:#155724;border-radius:4px;padding:1px 7px;font-size:11px">深度讨论</span>
+            <span style="font-size:11px;color:#1677ff;cursor:pointer">▼ 1条回复（已展开）</span>
+          </div>
+          <!-- 展开的回复 -->
+          <div style="margin-top:10px;margin-left:24px;padding:10px;background:#f9f9f9;border-radius:6px;border-left:2px solid #d9d9d9">
+            <div style="font-size:12px;color:#888;margin-bottom:2px">李四 回复 土龙</div>
+            <div style="font-size:12px;color:#555">说得很有道理！</div>
+            <div style="font-size:10px;color:#bbb;margin-top:4px">03-22 22:10</div>
+          </div>
+        </div>
+
+        <!-- 顶层留言 3 -->
+        <div style="padding:14px 0">
+          <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:4px">紫烟</div>
+          <div style="font-size:13px;color:#555;line-height:1.6">请问作者，您觉得AI会完全取代程序员吗？</div>
+          <div style="margin-top:6px;display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:#999">03-21 19:42</span>
+            <span style="background:#cce5ff;color:#004085;border-radius:4px;padding:1px 7px;font-size:11px">读者提问</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px">
+  <h3>功能清单确认</h3>
+  <table style="width:100%;border-collapse:collapse;font-size:13px">
+    <tr style="background:#f5f5f5">
+      <th style="text-align:left;padding:8px 12px;border:1px solid #e8e8e8">功能</th>
+      <th style="text-align:left;padding:8px 12px;border:1px solid #e8e8e8">说明</th>
+    </tr>
+    <tr><td style="padding:8px 12px;border:1px solid #e8e8e8">左侧文章列表</td><td style="padding:8px 12px;border:1px solid #e8e8e8">标题 + 总留言数，点击切换右侧内容</td></tr>
+    <tr><td style="padding:8px 12px;border:1px solid #e8e8e8">默认选中</td><td style="padding:8px 12px;border:1px solid #e8e8e8">打开时自动选中第一篇文章</td></tr>
+    <tr><td style="padding:8px 12px;border:1px solid #e8e8e8">分类筛选</td><td style="padding:8px 12px;border:1px solid #e8e8e8">多选标签，默认隐藏"无价值"</td></tr>
+    <tr><td style="padding:8px 12px;border:1px solid #e8e8e8">时间排序</td><td style="padding:8px 12px;border:1px solid #e8e8e8">最新优先 / 最早优先</td></tr>
+    <tr><td style="padding:8px 12px;border:1px solid #e8e8e8">评论人搜索</td><td style="padding:8px 12px;border:1px solid #e8e8e8">按昵称模糊搜索，实时过滤</td></tr>
+    <tr><td style="padding:8px 12px;border:1px solid #e8e8e8">回复折叠</td><td style="padding:8px 12px;border:1px solid #e8e8e8">默认折叠，点击"N条回复"展开/收起</td></tr>
+    <tr><td style="padding:8px 12px;border:1px solid #e8e8e8">导出 Excel</td><td style="padding:8px 12px;border:1px solid #e8e8e8">导出当前文章的可见留言</td></tr>
+  </table>
+</div>
+
+<p style="font-size:13px;color:#666;margin-top:12px">这个设计方向 OK 吗？确认后我们进入 Popup 的功能讨论。</p>

@@ -1,0 +1,96 @@
+<h2>导出按钮位置 & 交互方案</h2>
+<p class="subtitle">导出按钮移到左侧栏，点击弹窗选择文章</p>
+
+<div class="mockup" style="max-width:900px">
+  <div class="mockup-header">导出交互预览</div>
+  <div class="mockup-body" style="padding:0;display:flex;height:420px;overflow:hidden;position:relative">
+
+    <!-- 左侧文章列表 -->
+    <div style="width:240px;min-width:240px;background:#fafafa;border-right:1px solid #e8e8e8;display:flex;flex-direction:column">
+      <!-- 标题栏 + 导出按钮 -->
+      <div style="padding:10px 12px;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-weight:600;font-size:13px;color:#333">全部文章 <span style="color:#999;font-weight:400">（4篇）</span></span>
+        <button style="font-size:11px;padding:3px 10px;border:1px solid #1677ff;border-radius:4px;background:#fff;color:#1677ff;cursor:pointer">导出</button>
+      </div>
+      <div style="flex:1;overflow-y:auto">
+        <div style="padding:12px;background:#e6f4ff;border-left:3px solid #1677ff">
+          <div style="font-size:12px;font-weight:500;color:#333;line-height:1.4">马斯克最新8大判断…</div>
+          <div style="font-size:11px;color:#999;margin-top:3px">03-17 · 3条</div>
+        </div>
+        <div style="padding:12px;border-bottom:1px solid #f0f0f0">
+          <div style="font-size:12px;color:#333;line-height:1.4">龙虾AI之父预言…</div>
+          <div style="font-size:11px;color:#999;margin-top:3px">03-04 · 77条</div>
+        </div>
+        <div style="padding:12px;border-bottom:1px solid #f0f0f0">
+          <div style="font-size:12px;color:#333;line-height:1.4">我高中同学从没学过计算机…</div>
+          <div style="font-size:11px;color:#999;margin-top:3px">03-05 · 1条</div>
+        </div>
+        <div style="padding:12px">
+          <div style="font-size:12px;color:#333;line-height:1.4">当 AI 成为一种生活方式</div>
+          <div style="font-size:11px;color:#999;margin-top:3px">03-03 · 2条</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧留言区（模糊背景表示弹窗遮罩） -->
+    <div style="flex:1;filter:blur(1px);opacity:0.4;padding:16px;font-size:12px;color:#999">
+      右侧留言内容（弹窗打开时被遮罩）
+    </div>
+
+    <!-- 导出弹窗 -->
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:320px;z-index:10">
+      <div style="padding:16px 20px;border-bottom:1px solid #f0f0f0;font-weight:600;font-size:14px;color:#333">
+        导出 Excel
+      </div>
+      <div style="padding:16px 20px">
+        <div style="font-size:12px;color:#666;margin-bottom:10px">选择要导出的文章：</div>
+
+        <!-- 全选 -->
+        <label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0;margin-bottom:6px;cursor:pointer">
+          <input type="checkbox" checked style="accent-color:#1677ff">
+          <span style="font-size:12px;font-weight:500;color:#333">全选（4篇）</span>
+        </label>
+
+        <!-- 各篇文章 -->
+        <label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer">
+          <input type="checkbox" checked style="accent-color:#1677ff">
+          <span style="font-size:12px;color:#333;flex:1">马斯克最新8大判断…</span>
+          <span style="font-size:11px;color:#999">3条</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer">
+          <input type="checkbox" checked style="accent-color:#1677ff">
+          <span style="font-size:12px;color:#333;flex:1">龙虾AI之父预言…</span>
+          <span style="font-size:11px;color:#999">77条</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer">
+          <input type="checkbox" style="accent-color:#1677ff">
+          <span style="font-size:12px;color:#333;flex:1">我高中同学从没学过计算机…</span>
+          <span style="font-size:11px;color:#999">1条</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer">
+          <input type="checkbox" checked style="accent-color:#1677ff">
+          <span style="font-size:12px;color:#333;flex:1">当 AI 成为一种生活方式</span>
+          <span style="font-size:11px;color:#999">2条</span>
+        </label>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:8px">
+        <button style="padding:5px 16px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;font-size:12px;cursor:pointer;color:#666">取消</button>
+        <button style="padding:5px 16px;border:none;border-radius:4px;background:#1677ff;font-size:12px;cursor:pointer;color:#fff">确认导出（3篇）</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px">
+  <h3>交互说明</h3>
+  <ul style="font-size:13px;color:#555;line-height:2">
+    <li>导出按钮放在左侧栏标题行右侧</li>
+    <li>点击后弹窗，默认全选所有文章</li>
+    <li>勾选文章，确认按钮实时显示"导出（N篇）"</li>
+    <li>导出的是所选文章的<strong>全量留言</strong>（不受右侧当前筛选影响）</li>
+  </ul>
+  <p style="font-size:12px;color:#e67e22;background:#fdf3e3;padding:8px 12px;border-radius:4px">
+    ⚠ 最后一条需要你确认：导出是全量留言，还是导出时也应该遵守右侧的分类/搜索筛选？
+  </p>
+</div>

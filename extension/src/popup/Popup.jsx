@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import './Popup.css';
 
 export default function Popup() {
   const [articles, setArticles] = useState([]);
@@ -8,19 +9,17 @@ export default function Popup() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch article list from content script
     chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
       chrome.tabs.sendMessage(tab.id, { type: 'FETCH_ARTICLES' }, (resp) => {
         if (!resp?.ok) { setError(resp?.error || 'unknown error'); return; }
-        const articles = resp.data?.articles || [];
-        setArticles(articles);
+        const list = (resp.data?.articles || []).filter(a => a.comment_count > 0);
+        setArticles(list);
         const sel = {};
-        articles.forEach(a => sel[a.comment_id] = true);
+        list.forEach(a => sel[a.comment_id] = true);
         setSelected(sel);
       });
     });
 
-    // Listen for progress updates
     const listener = (msg) => {
       if (msg.type === 'PROGRESS') setProgress({ current: msg.current, total: msg.total });
       if (msg.type === 'CAPTURE_DONE') setDone(true);
@@ -29,7 +28,9 @@ export default function Popup() {
     return () => chrome.runtime.onMessage.removeListener(listener);
   }, []);
 
+  const selectedIds = Object.keys(selected).filter(id => selected[id]);
   const allSelected = articles.length > 0 && articles.every(a => selected[a.comment_id]);
+
   const toggleAll = () => {
     const sel = {};
     articles.forEach(a => sel[a.comment_id] = !allSelected);
@@ -39,51 +40,86 @@ export default function Popup() {
   const toggle = (id) => setSelected(s => ({ ...s, [id]: !s[id] }));
 
   const startCapture = () => {
-    const ids = Object.keys(selected).filter(id => selected[id]);
-    chrome.runtime.sendMessage({ type: 'START_CAPTURE', articleIds: ids });
-    setProgress({ current: 0, total: ids.length });
+    chrome.runtime.sendMessage({ type: 'START_CAPTURE', articleIds: selectedIds });
+    setProgress({ current: 0, total: selectedIds.length });
   };
 
   const openDashboard = () => {
     chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') });
   };
 
-  if (error) return <div style={{padding:12, color:'red'}}>{error}</div>;
-
   return (
-    <div style={{ width: 320, padding: 12, fontFamily: 'sans-serif' }}>
-      <h3 style={{ margin: '0 0 8px' }}>WeCatch</h3>
+    <div className="popup">
+      <div className="popup-header">
+        <span className="popup-logo">🌿</span>
+        <span className="popup-title">WeCatch</span>
+      </div>
 
-      {!progress && (
-        <>
-          <label style={{ display: 'flex', gap: 8, padding: '4px 0', borderBottom: '1px solid #eee', marginBottom: 4 }}>
-            <input type="checkbox" checked={allSelected} onChange={toggleAll} />
-            <span>全选</span>
-          </label>
-          <div style={{ maxHeight: 240, overflowY: 'auto', marginBottom: 8 }}>
-            {articles.map(a => (
-              <label key={a.comment_id} style={{ display: 'flex', gap: 8, padding: '4px 0' }}>
-                <input type="checkbox" checked={!!selected[a.comment_id]} onChange={() => toggle(a.comment_id)} />
-                <span>{a.title} ({a.comment_count}条留言)</span>
-              </label>
-            ))}
-          </div>
-          <button onClick={startCapture} disabled={!Object.values(selected).some(Boolean)}>
-            开始抓取
-          </button>
-        </>
+      <div className="popup-card">
+        {error && <div className="error-text">{error}</div>}
+
+        {!error && !progress && (
+          <>
+            <div className="select-all-row">
+              <div
+                className={`checkbox ${allSelected ? 'checked' : ''}`}
+                onClick={toggleAll}
+              />
+              <span className="select-all-label">全选</span>
+              {selectedIds.length > 0 && (
+                <span className="selected-count">{selectedIds.length} 篇已选</span>
+              )}
+            </div>
+            <div className="article-list">
+              {articles.map(a => (
+                <div
+                  key={a.comment_id}
+                  className={`article-item ${selected[a.comment_id] ? 'selected' : ''}`}
+                  onClick={() => toggle(a.comment_id)}
+                >
+                  <div className={`checkbox ${selected[a.comment_id] ? 'checked' : ''}`} />
+                  <div className="article-info">
+                    <div className="article-title">{a.title}</div>
+                  </div>
+                  <span className="comment-count">{a.comment_count}条</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {progress && !done && (
+          <>
+            <div className="progress-text">
+              抓取中 {progress.current} / {progress.total}
+            </div>
+            <div className="progress-bar-track">
+              <div
+                className="progress-bar-fill"
+                style={{ width: `${progress.total ? (progress.current / progress.total) * 100 : 0}%` }}
+              />
+            </div>
+          </>
+        )}
+
+        {done && (
+          <div className="done-text">✓ 抓取完成</div>
+        )}
+      </div>
+
+      {!error && !progress && (
+        <button
+          className="btn-primary"
+          onClick={startCapture}
+          disabled={selectedIds.length === 0}
+        >
+          开始抓取
+        </button>
       )}
 
-      {progress && !done && (
-        <div>处理中：{progress.current} / {progress.total}</div>
-      )}
-
-      {done && (
-        <>
-          <div>✓ 抓取完成</div>
-          <button onClick={openDashboard} style={{ marginTop: 8 }}>打开数据看板</button>
-        </>
-      )}
+      <button className="btn-ghost" onClick={openDashboard}>
+        打开数据看板
+      </button>
     </div>
   );
 }
