@@ -7,11 +7,9 @@ import (
 
 var categoryMap = map[string]string{
 	"读者提问": "question",
-	"纠错质疑": "correction",
 	"建议需求": "suggestion",
 	"合作意向": "cooperation",
 	"负面不满": "negative",
-	"无价值":  "worthless",
 }
 
 func ParseCategory(raw string) string {
@@ -50,6 +48,6 @@ func buildPrompt(articleTitle string, thread tree.Thread) string {
 		sb.WriteString("回复：" + r.Content + "\n")
 	}
 	sb.WriteString("\n请判断这条留言属于以下哪个类别，只回答类别名称：\n")
-	sb.WriteString("读者提问 / 纠错质疑 / 建议需求 / 合作意向 / 负面不满 / 无价值")
+	sb.WriteString("读者提问 / 建议需求 / 合作意向 / 负面不满")
 	return sb.String()
 }
