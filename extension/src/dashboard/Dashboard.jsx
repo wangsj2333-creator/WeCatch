@@ -4,6 +4,7 @@ import CommentList from './components/CommentList';
 import ArticleList from './components/ArticleList';
 import ExportModal from './components/ExportModal';
 import { exportToExcel } from './export';
+import './Dashboard.css';
 
 export default function Dashboard() {
   const [articles, setArticles] = useState([]);
@@ -37,22 +38,26 @@ export default function Dashboard() {
     allComments.filter(c => c.reply_to_wx_id === wx_comment_id);
 
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
+    <div className="dashboard-root">
       {/* Left sidebar */}
-      <div style={{ width: 260, flexShrink: 0 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 8px' }}>
-          <span>WeCatch</span>
-          <button onClick={() => setShowExportModal(true)}>导出</button>
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <h1 className="sidebar-title">WeCatch</h1>
+          <button className="sidebar-export-btn" onClick={() => setShowExportModal(true)} title="导出数据">
+            ↗
+          </button>
         </div>
-        <ArticleList
-          articles={articles}
-          selectedIdx={selectedIdx}
-          onSelect={setSelectedIdx}
-        />
+        <div className="sidebar-article-list">
+          <ArticleList
+            articles={articles}
+            selectedIdx={selectedIdx}
+            onSelect={setSelectedIdx}
+          />
+        </div>
       </div>
 
       {/* Right content */}
-      <div style={{ flex: 1, overflow: 'auto', padding: 24 }}>
+      <div className="content-area">
         <FilterBar
           categoryFilter={categoryFilter}
           onCategoryChange={setCategoryFilter}

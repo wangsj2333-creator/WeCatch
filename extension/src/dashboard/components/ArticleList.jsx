@@ -10,22 +10,22 @@ export default function ArticleList({ articles, selectedIdx, onSelect }) {
   return (
     <div>
       <div
+        className={`article-item${selectedIdx === null ? ' selected' : ''}`}
         onClick={() => onSelect(null)}
-        data-selected={selectedIdx === null}
       >
-        <span>全部</span>
-        <span>{totalCount}条</span>
+        <span className="article-item-title">全部</span>
+        <span className="article-item-count">{totalCount}条</span>
       </div>
       {articles.map((a, idx) => {
         const topLevelCount = (a.comments || []).filter(c => !c.reply_to_wx_id).length;
         return (
           <div
             key={a.article.url}
+            className={`article-item${idx === selectedIdx ? ' selected' : ''}`}
             onClick={() => onSelect(idx)}
-            data-selected={idx === selectedIdx}
           >
-            <span>{a.article.title}</span>
-            <span>{topLevelCount}条</span>
+            <span className="article-item-title">{a.article.title}</span>
+            <span className="article-item-count">{topLevelCount}条</span>
           </div>
         );
       })}
