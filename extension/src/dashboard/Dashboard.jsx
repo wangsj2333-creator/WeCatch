@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import FilterBar from './components/FilterBar';
 import CommentList from './components/CommentList';
+import ArticleList from './components/ArticleList';
 import { exportToExcel } from './export';
 
-// worthless excluded from defaults — user can enable it via filter
 const DEFAULT_CATS = ['question','correction','negative','suggestion','discussion','cooperation','unclassified'];
 
 export default function Dashboard() {
   const [articles, setArticles] = useState([]);
+  const [selectedIdx, setSelectedIdx] = useState(null); // null = all articles
   const [activeFilters, setActiveFilters] = useState(DEFAULT_CATS);
+  const [sortOrder, setSortOrder] = useState('newest'); // 'newest' | 'oldest'
+  const [showExportModal, setShowExportModal] = useState(false);
 
   useEffect(() => {
     chrome.storage.session.get('wecatchResults', (data) => {
@@ -22,28 +25,52 @@ export default function Dashboard() {
     );
   };
 
-  const visibleComments = articles.flatMap(a => {
-    const comments = a.comments || [];
-    // Build set of visible top-level comment IDs
-    const visibleTopIds = new Set(
-      comments
-        .filter(c => !c.reply_to_wx_id && activeFilters.includes(c.category))
-        .map(c => c.wx_comment_id)
-    );
-    // Include top-level comments that pass filter, and replies whose parent is visible
-    return comments.filter(c =>
-      c.reply_to_wx_id ? visibleTopIds.has(c.reply_to_wx_id) : activeFilters.includes(c.category)
-    );
+  const allComments = selectedIdx === null
+    ? articles.flatMap(a => a.comments || [])
+    : (articles[selectedIdx]?.comments || []);
+
+  // Top-level comments that pass the category filter
+  const visibleTopIds = new Set(
+    allComments
+      .filter(c => !c.reply_to_wx_id && activeFilters.includes(c.category))
+      .map(c => c.wx_comment_id)
+  );
+
+  // Collect top-level comments + their replies
+  const topLevel = allComments
+    .filter(c => !c.reply_to_wx_id && visibleTopIds.has(c.wx_comment_id));
+
+  const sortedTopLevel = [...topLevel].sort((a, b) => {
+    const diff = new Date(a.comment_time) - new Date(b.comment_time);
+    return sortOrder === 'newest' ? -diff : diff;
   });
 
+  const repliesFor = (wx_comment_id) =>
+    allComments.filter(c => c.reply_to_wx_id === wx_comment_id);
+
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto', padding: 16, fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-        <h2 style={{ margin: 0 }}>WeCatch 数据看板</h2>
-        <button onClick={() => exportToExcel(articles)}>导出 Excel</button>
+    <div style={{ display: 'flex', height: '100vh' }}>
+      {/* Left sidebar */}
+      <div style={{ width: 260, flexShrink: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 8px' }}>
+          <span>WeCatch</span>
+          <button onClick={() => setShowExportModal(true)}>导出</button>
+        </div>
+        <ArticleList
+          articles={articles}
+          selectedIdx={selectedIdx}
+          onSelect={setSelectedIdx}
+        />
       </div>
-      <FilterBar active={activeFilters} onChange={toggleFilter} />
-      <CommentList comments={visibleComments} />
+
+      {/* Right content */}
+      <div style={{ flex: 1, overflow: 'auto', padding: 24 }}>
+        <CommentList comments={sortedTopLevel} repliesFor={repliesFor} />
+      </div>
+
+      {showExportModal && (
+        <div>Export modal placeholder</div>
+      )}
     </div>
   );
 }
