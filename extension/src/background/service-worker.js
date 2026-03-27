@@ -11,6 +11,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 });
 
 async function handleCapture(articleIds) {
+  console.log('handleCapture articleIds:', articleIds);
   const results = [];
 
   for (let i = 0; i < articleIds.length; i++) {
@@ -29,18 +30,22 @@ async function handleCapture(articleIds) {
     });
 
     // Send to backend
+    console.log('[wecatch] sending to backend:', JSON.stringify(raw.data));
     const resp = await fetch(`${BACKEND_URL}/api/analyze`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-API-Key': API_KEY,
       },
-      body: JSON.stringify(raw),
+      body: JSON.stringify(raw.data),
     });
+    console.log('[wecatch] backend status:', resp.status);
+    const responseText = await resp.text();
+    console.log('[wecatch] backend response:', responseText);
     if (!resp.ok) {
       throw new Error(`backend error: ${resp.status}`);
     }
-    const data = await resp.json();
+    const data = JSON.parse(responseText);
     results.push(data);
   }
 

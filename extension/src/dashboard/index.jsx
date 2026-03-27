@@ -1,3 +1,4 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-createRoot(document.getElementById('root')).render(<div>Dashboard</div>);
+import Dashboard from './Dashboard';
+createRoot(document.getElementById('root')).render(<Dashboard />);

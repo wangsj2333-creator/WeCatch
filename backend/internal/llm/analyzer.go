@@ -5,21 +5,21 @@ import (
 	"wecatch/internal/tree"
 )
 
-var validCategories = map[string]bool{
-	"读者提问": true,
-	"纠错质疑": true,
-	"建议需求": true,
-	"合作意向": true,
-	"负面不满": true,
-	"无价值":  true,
+var categoryMap = map[string]string{
+	"读者提问": "question",
+	"纠错质疑": "correction",
+	"建议需求": "suggestion",
+	"合作意向": "cooperation",
+	"负面不满": "negative",
+	"无价值":  "worthless",
 }
 
 func ParseCategory(raw string) string {
 	s := strings.TrimSpace(raw)
-	if validCategories[s] {
-		return s
+	if key, ok := categoryMap[s]; ok {
+		return key
 	}
-	return "未分类"
+	return "unclassified"
 }
 
 // Analyzer classifies comment threads using the LLM client.

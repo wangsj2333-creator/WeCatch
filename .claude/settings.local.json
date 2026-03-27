@@ -5,7 +5,8 @@
       "Read(//c/Users/王圣杰/Desktop/**)",
       "Bash(git -C C:/Internship/WeCatch show b7a05bf --name-only)",
       "Bash(git -C C:/Internship/WeCatch show b7a05bf:extension/content/content.js)",
-      "Bash(go test:*)"
+      "Bash(go test:*)",
+      "Skill(keybindings-help)"
     ]
   }
 }

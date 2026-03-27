@@ -10,11 +10,13 @@ func TestParseCategory_ValidValues(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"question", "question"},
-		{"negative", "negative"},
-		{"worthless", "worthless"},
-		{"QUESTION", "question"},     // case insensitive
-		{"  question  ", "question"}, // trim whitespace
+		{"读者提问", "question"},
+		{"纠错质疑", "correction"},
+		{"建议需求", "suggestion"},
+		{"合作意向", "cooperation"},
+		{"负面不满", "negative"},
+		{"无价值", "worthless"},
+		{"  负面不满  ", "negative"}, // trim whitespace
 		{"garbage", "unclassified"},  // unknown → unclassified
 		{"", "unclassified"},         // empty → unclassified
 	}
