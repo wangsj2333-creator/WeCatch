@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './control-card.css';
 
 const INTERVALS = [
   { label: '2分钟', value: 2 },

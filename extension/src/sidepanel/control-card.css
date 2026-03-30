@@ -1,0 +1,59 @@
+/* =====================
+   Control Card
+   ===================== */
+.control-interval-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.interval-capsule {
+  flex: 1;
+  padding: 6px 0;
+  border: none;
+  border-radius: 9999px;
+  background: #ddf2ec;
+  color: #1f3731;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.interval-capsule:hover {
+  opacity: 0.85;
+}
+
+.interval-capsule--selected {
+  background: linear-gradient(135deg, #006d48, #92f7c3);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 13px 24px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #006d48, #92f7c3);
+  color: #ffffff;
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary:not(:disabled):hover {
+  opacity: 0.9;
+}

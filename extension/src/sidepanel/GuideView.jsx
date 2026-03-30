@@ -1,4 +1,5 @@
 import React from 'react';
+import './guide-view.css';
 
 /**
  * GuideView — shown when no WeChat backend tab is detected.

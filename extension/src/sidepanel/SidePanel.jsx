@@ -8,9 +8,11 @@ const WX_URL_PATTERN = 'https://mp.weixin.qq.com/*';
 
 /**
  * Checks whether any WeChat backend tab is currently open.
+ * Returns false when the chrome API is unavailable (e.g. local dev environment).
  * @returns {Promise<boolean>}
  */
 async function detectWxTab() {
+  if (typeof chrome === 'undefined' || !chrome.tabs) return false;
   const tabs = await chrome.tabs.query({ url: WX_URL_PATTERN });
   return tabs.length > 0;
 }
@@ -42,12 +44,16 @@ export default function SidePanel() {
       refresh();
     };
 
-    chrome.tabs.onUpdated.addListener(onUpdated);
-    chrome.tabs.onRemoved.addListener(onRemoved);
+    if (typeof chrome !== 'undefined' && chrome.tabs) {
+      chrome.tabs.onUpdated.addListener(onUpdated);
+      chrome.tabs.onRemoved.addListener(onRemoved);
+    }
 
     return () => {
-      chrome.tabs.onUpdated.removeListener(onUpdated);
-      chrome.tabs.onRemoved.removeListener(onRemoved);
+      if (typeof chrome !== 'undefined' && chrome.tabs) {
+        chrome.tabs.onUpdated.removeListener(onUpdated);
+        chrome.tabs.onRemoved.removeListener(onRemoved);
+      }
     };
   }, [refresh]);
 

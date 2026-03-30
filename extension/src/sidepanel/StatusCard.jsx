@@ -1,4 +1,5 @@
 import React from 'react';
+import './status-card.css';
 
 /**
  * StatusCard — frosted glass card showing capture status.
