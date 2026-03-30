@@ -116,9 +116,11 @@ export default function Popup() {
         </button>
       )}
 
-      <button className="btn-ghost" onClick={openDashboard}>
-        打开数据看板
-      </button>
+      {done && (
+        <button className="btn-ghost" onClick={openDashboard}>
+          打开数据看板
+        </button>
+      )}
     </div>
   );
 }
