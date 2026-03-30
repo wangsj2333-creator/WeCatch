@@ -3,6 +3,7 @@ import GuideView from './GuideView';
 import StatusCard from './StatusCard';
 import ControlCard from './ControlCard';
 import DashboardButton from './DashboardButton';
+import { useStatus } from './useStatus';
 
 const WX_URL_PATTERN = 'https://mp.weixin.qq.com/*';
 
@@ -20,9 +21,11 @@ async function detectWxTab() {
 /**
  * SidePanel — main component.
  * Handles WeChat tab detection and switches between GuideView and main UI.
+ * Owns shared status state and passes callbacks down to children.
  */
 export default function SidePanel() {
   const [wxTabExists, setWxTabExists] = useState(null); // null = loading
+  const { lastRun, newCount, countdown, interval, changeInterval } = useStatus();
 
   const refresh = useCallback(async () => {
     const exists = await detectWxTab();
@@ -73,8 +76,8 @@ export default function SidePanel() {
         <GuideView />
       ) : (
         <>
-          <StatusCard />
-          <ControlCard />
+          <StatusCard lastRun={lastRun} newCount={newCount} countdown={countdown} />
+          <ControlCard interval={interval} onChangeInterval={changeInterval} />
           <DashboardButton />
         </>
       )}

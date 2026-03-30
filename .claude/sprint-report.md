@@ -1,3 +1,48 @@
+## Sprint 2 报告
+
+### 已完成
+
+- **Service Worker alarm 管理**：`onInstalled` / `onStartup` 时调用 `ensureAlarm()` 创建 `wecatch-poll` alarm（默认 5 分钟）；`SET_INTERVAL` 消息触发 `resetAlarm()`，清除旧 alarm 并创建新 alarm，同时写入 `chrome.storage.local.wecatch_interval`
+- **Service Worker 休眠恢复保障**：`chrome.alarms.onAlarm` 处理开始前调用 `ensureAlarm()`，确保 alarm 被系统回收后自动重建
+- **抓取锁机制**：alarm 触发时读取 `wecatch_is_capturing`，锁存在时跳过并 log
+- **GET_STATUS 消息**：返回 `{ lastRun, newCount, nextAlarmTime }`，`nextAlarmTime` 直接取自 `chrome.alarms.get('wecatch-poll').scheduledTime`
+- **POLL_DONE 广播**：alarm 触发后广播 `POLL_DONE`，携带 storage 中的当前值（Sprint 2 无真实抓取）
+- **useStatus hook**（`src/sidepanel/useStatus.js`）：提升状态到共享 hook，管理 `lastRun`、`newCount`、`countdown`、`interval`；倒计时用 `setInterval(1000)` 每秒更新；监听 `POLL_DONE` 自动刷新
+- **StatusCard 接入真实数据**：由 SidePanel 通过 props 驱动，不再自行管理状态；相对时间格式化（刚刚 / N 分钟前 / N 小时前 / 尚未抓取）
+- **ControlCard 接入真实逻辑**：初始从 storage 读取 interval 高亮初始项；点击后调用 `onChangeInterval` 回调，等待 SW 响应后高亮切换；切换间隔后 `refreshStatus()` 立即更新 `nextAlarmTime`，倒计时实时重置
+- **SidePanel 重构**：提升 `useStatus` 到顶层，将 `lastRun`、`newCount`、`countdown`、`interval`、`changeInterval` 作为 props 传给子组件，确保状态同步
+
+### 验收标准自检
+
+| 标准 | 状态 | 说明 |
+|------|------|------|
+| 插件安装/启动后存在 `wecatch-poll` alarm，周期 5 分钟 | ✅ | `onInstalled` + `onStartup` 调用 `ensureAlarm()` |
+| 切换为 2 分钟后旧 alarm 清除，新 alarm 周期 2 分钟 | ✅ | `resetAlarm()` 先 clear 再 create |
+| 切换为 10 分钟后 alarm 周期正确更新 | ✅ | 同上 |
+| `wecatch_interval` 写入 `chrome.storage.local` | ✅ | `resetAlarm()` 中 `storage.local.set` |
+| Service Worker 休眠恢复后 alarm 自动重建 | ✅ | `onAlarm` 处理前调用 `ensureAlarm()` + `onStartup` 重建 |
+| Side Panel 发送 `GET_STATUS` 后收到含三个字段的响应 | ✅ | `handleGetStatus()` 返回 `{ lastRun, newCount, nextAlarmTime }` |
+| `nextAlarmTime` 值与 alarm `scheduledTime` 一致 | ✅ | 直接取 `alarm.scheduledTime` |
+| Side Panel 初始化正确高亮当前 interval（默认 5 分钟） | ✅ | `useStatus` mount 时读 `chrome.storage.local.wecatch_interval` |
+| 点击不同间隔按钮后高亮正确切换 | ✅ | `changeInterval` 成功后 `setIntervalValue(value)` |
+| 切换间隔后倒计时立即重置 | ✅ | `changeInterval` 内调用 `refreshStatus()` 更新 `nextAlarmTime`，触发 `useEffect` 重启 tick |
+| 从未抓取时显示"尚未抓取"，新增显示"-" | ✅ | `formatRelativeTime(null)` 返回 "尚未抓取"，`newCount===null` 显示 "-" |
+| 倒计时 mm:ss 格式每秒更新，持续递减 | ✅ | `setInterval(1000)` + `formatCountdown()` |
+| `wecatch_last_run` 有值时显示正确相对时间 | ✅ | `formatRelativeTime` 覆盖刚刚/分钟/小时/天 |
+| 收到 `POLL_DONE` 后状态面板自动刷新 | ✅ | `useStatus` 中监听 `POLL_DONE` 调用 `refreshStatus()` |
+| `npm run build` 成功，无报错 | ✅ | `webpack compiled successfully` |
+
+### 遗留问题
+
+- 无技术障碍。Sprint 2 alarm 触发只打印日志和广播 `POLL_DONE`（携带旧值），真实抓取行为留 Sprint 3 实现，符合 contract 约定。
+
+### 下一步建议
+
+- Sprint 3：实现 `FETCH_AND_CAPTURE` Content Script 消息，增量对比逻辑（`wecatch_seen_ids`），alarm 触发时接入真实抓取，Dashboard 数据源迁移到 `chrome.storage.local`
+- Sprint 3 开始前建议手动测试 alarm 触发流程（chrome://extensions -> Service Worker -> DevTools Console 查看 `[wecatch] alarm fired` 日志）
+
+---
+
 ## Sprint 1 Report
 
 ### Completed
