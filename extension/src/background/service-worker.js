@@ -1,6 +1,15 @@
 const BACKEND_URL = 'http://localhost:8080';
 const API_KEY = 'dev-key';
 
+// Register side panel to open on action click
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+});
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'START_CAPTURE') {
     handleCapture(msg.articleIds)

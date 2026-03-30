@@ -8,6 +8,7 @@ module.exports = {
     'content-script': './src/content/content-script.js',
     popup: './src/popup/index.jsx',
     dashboard: './src/dashboard/index.jsx',
+    sidepanel: './src/sidepanel/index.jsx',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
