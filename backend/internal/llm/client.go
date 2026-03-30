@@ -43,10 +43,17 @@ type chatResponse struct {
 }
 
 // Classify sends a prompt to Qianwen and returns the raw text response.
-func (c *Client) Classify(prompt string) (string, error) {
+// If systemPrompt is non-empty, it is prepended as a system message.
+func (c *Client) Classify(systemPrompt, prompt string) (string, error) {
+	messages := []message{}
+	if systemPrompt != "" {
+		messages = append(messages, message{Role: "system", Content: systemPrompt})
+	}
+	messages = append(messages, message{Role: "user", Content: prompt})
+
 	body, err := json.Marshal(chatRequest{
 		Model:    qianwenModel,
-		Messages: []message{{Role: "user", Content: prompt}},
+		Messages: messages,
 	})
 	if err != nil {
 		return "", err
