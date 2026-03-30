@@ -81,7 +81,6 @@ export default function Popup() {
                   <div className="article-info">
                     <div className="article-title">{a.title}</div>
                   </div>
-                  <span className="comment-count">{a.comment_count}条</span>
                 </div>
               ))}
             </div>
