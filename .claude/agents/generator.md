@@ -17,8 +17,10 @@ model: sonnet
 4. 实现功能代码
 5. 用 Bash 验证编译通过：`cd extension && npm run build`
 6. 自评：对照 sprint-contract 检查每一条验收标准
-7. 用 Bash 提交代码到 v1-1 分支：`git add -A && git commit -m "feat: sprint [N] - [简短描述]"`
-8. 将结果写入 `.claude/sprint-report.md`，包括：完成情况、遗留问题、建议下一步
+7. 将结果写入 `.claude/sprint-report.md`，包括：完成情况、遗留问题、建议下一步
+8. **必须执行**：写 implementation brief 并提交代码（无论是新实现还是修复任务都必须 commit）
+   - 在 commit message body 中列出本次实现的功能和修复的 bug
+   - 格式：`git commit -m "$(cat <<'EOF'\nfeat(sprint-[N]): [简短描述]\n\n实现：\n- [功能1]\n- [功能2]\n\n修复：\n- [bug1]\nEOF\n)"`
 
 ## sprint-report.md 格式
 ```
