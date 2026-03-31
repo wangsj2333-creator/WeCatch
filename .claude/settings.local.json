@@ -7,7 +7,15 @@
       "Bash(git -C C:/Internship/WeCatch show b7a05bf:extension/content/content.js)",
       "Bash(go test:*)",
       "Skill(keybindings-help)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot",
+      "Bash(python3:*)",
+      "Bash(node -e \":*)",
+      "Bash(node C:/Internship/WeCatch/.claude/write-report.js)",
+      "Bash(node:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

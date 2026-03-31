@@ -101,9 +101,9 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     if (response.data.error) {
       console.warn('[wecatch] capture completed with analyze error:', response.data.error);
       broadcastMessage({ type: 'CAPTURE_ERROR', error: response.data.error });
+    } else {
+      broadcastMessage({ type: 'POLL_DONE', lastRun, newCount: newTopLevelCount });
     }
-
-    broadcastMessage({ type: 'POLL_DONE', lastRun, newCount: newTopLevelCount });
   } finally {
     await chrome.storage.local.set({ wecatch_is_capturing: false });
   }
