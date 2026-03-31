@@ -1,0 +1,40 @@
+[     163ms] TypeError: Cannot read properties of undefined (reading 'onUpdated')
+    at http://localhost:7891/sidepanel.js:279:17
+    at commitHookEffectListMount (http://localhost:7891/sidepanel.js:23928:26)
+    at commitPassiveMountOnFiber (http://localhost:7891/sidepanel.js:25709:11)
+    at commitPassiveMountEffects_complete (http://localhost:7891/sidepanel.js:25669:9)
+    at commitPassiveMountEffects_begin (http://localhost:7891/sidepanel.js:25656:7)
+    at commitPassiveMountEffects (http://localhost:7891/sidepanel.js:25644:3)
+    at flushPassiveEffectsImpl (http://localhost:7891/sidepanel.js:27817:3)
+    at flushPassiveEffects (http://localhost:7891/sidepanel.js:27762:14)
+    at http://localhost:7891/sidepanel.js:27547:9
+    at workLoop (http://localhost:7891/sidepanel.js:33776:34)
+[     166ms] [ERROR] The above error occurred in the <SidePanel> component:
+
+    at SidePanel (http://localhost:7891/sidepanel.js:245:66)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:7891/sidepanel.js:19446
+[     167ms] TypeError: Cannot read properties of undefined (reading 'onUpdated')
+    at http://localhost:7891/sidepanel.js:279:17
+    at commitHookEffectListMount (http://localhost:7891/sidepanel.js:23928:26)
+    at commitPassiveMountOnFiber (http://localhost:7891/sidepanel.js:25709:11)
+    at commitPassiveMountEffects_complete (http://localhost:7891/sidepanel.js:25669:9)
+    at commitPassiveMountEffects_begin (http://localhost:7891/sidepanel.js:25656:7)
+    at commitPassiveMountEffects (http://localhost:7891/sidepanel.js:25644:3)
+    at flushPassiveEffectsImpl (http://localhost:7891/sidepanel.js:27817:3)
+    at flushPassiveEffects (http://localhost:7891/sidepanel.js:27762:14)
+    at http://localhost:7891/sidepanel.js:27547:9
+    at workLoop (http://localhost:7891/sidepanel.js:33776:34)
+[     177ms] TypeError: Cannot read properties of undefined (reading 'query')
+    at http://localhost:7891/sidepanel.js:233:30
+    at Generator.<anonymous> (http://localhost:7891/sidepanel.js:198:1660)
+    at Generator.next (http://localhost:7891/sidepanel.js:199:255)
+    at asyncGeneratorStep (http://localhost:7891/sidepanel.js:206:70)
+    at _next (http://localhost:7891/sidepanel.js:207:163)
+    at http://localhost:7891/sidepanel.js:207:299
+    at new Promise (<anonymous>)
+    at http://localhost:7891/sidepanel.js:207:90
+    at _detectWxTab (http://localhost:7891/sidepanel.js:242:23)
+    at detectWxTab (http://localhost:7891/sidepanel.js:220:23)
+[    2523ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:7891/favicon.ico:0

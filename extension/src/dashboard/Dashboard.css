@@ -39,6 +39,26 @@
   margin: 0;
 }
 
+.sidebar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sidebar-clear-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #f87171;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.sidebar-clear-btn:hover {
+  background: rgba(248, 113, 113, 0.15);
+}
+
 .sidebar-export-btn {
   background: transparent;
   border: none;

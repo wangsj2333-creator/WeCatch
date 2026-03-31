@@ -19,6 +19,17 @@ export default function Dashboard() {
     });
   }, []);
 
+  const handleClearAll = () => {
+    if (!window.confirm('确认清空所有抓取的留言？此操作不可撤销。')) return;
+    chrome.storage.local.remove(
+      ['wecatch_articles', 'wecatch_seen_ids', 'wecatch_last_run', 'wecatch_last_new_count'],
+      () => {
+        setArticles([]);
+        setSelectedIdx(null);
+      }
+    );
+  };
+
   const allComments = selectedIdx === null
     ? articles.flatMap(a => a.comments || [])
     : (articles[selectedIdx]?.comments || []);
@@ -43,9 +54,14 @@ export default function Dashboard() {
       <div className="sidebar">
         <div className="sidebar-header">
           <h1 className="sidebar-title">WeCatch</h1>
-          <button className="sidebar-export-btn" onClick={() => setShowExportModal(true)} title="导出数据">
-            ↗
-          </button>
+          <div className="sidebar-header-actions">
+            <button className="sidebar-clear-btn" onClick={handleClearAll} title="清空所有留言">
+              ✕
+            </button>
+            <button className="sidebar-export-btn" onClick={() => setShowExportModal(true)} title="导出数据">
+              ↗
+            </button>
+          </div>
         </div>
         <div className="sidebar-article-list">
           <ArticleList
