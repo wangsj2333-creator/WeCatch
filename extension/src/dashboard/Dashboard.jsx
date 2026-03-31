@@ -14,8 +14,8 @@ export default function Dashboard() {
   const [showExportModal, setShowExportModal] = useState(false);
 
   useEffect(() => {
-    chrome.storage.session.get('wecatchResults', (data) => {
-      setArticles(data.wecatchResults || []);
+    chrome.storage.local.get('wecatch_articles', (data) => {
+      setArticles(data.wecatch_articles || []);
     });
   }, []);
 

@@ -7,7 +7,7 @@ import './guide-view.css';
  */
 export default function GuideView() {
   const openWeChat = () => {
-    chrome.tabs.create({ url: 'https://mp.weixin.qq.com' });
+    chrome.runtime.sendMessage({ type: 'OPEN_WX_TAB' });
   };
 
   return (

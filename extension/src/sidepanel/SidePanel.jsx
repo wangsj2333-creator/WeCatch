@@ -25,7 +25,7 @@ async function detectWxTab() {
  */
 export default function SidePanel() {
   const [wxTabExists, setWxTabExists] = useState(null); // null = loading
-  const { lastRun, newCount, countdown, interval, changeInterval } = useStatus();
+  const { lastRun, newCount, countdown, interval, wxTabMissing, changeInterval } = useStatus();
 
   const refresh = useCallback(async () => {
     const exists = await detectWxTab();
@@ -72,7 +72,7 @@ export default function SidePanel() {
         <span className="sp-title">WeCatch</span>
       </div>
 
-      {wxTabExists === false ? (
+      {wxTabExists === false || wxTabMissing ? (
         <GuideView />
       ) : (
         <>

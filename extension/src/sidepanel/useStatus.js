@@ -53,6 +53,7 @@ export function useStatus() {
   const [nextAlarmTime, setNextAlarmTime] = useState(null);
   const [countdown, setCountdown] = useState('--:--');
   const [interval, setIntervalValue] = useState(DEFAULT_INTERVAL);
+  const [wxTabMissing, setWxTabMissing] = useState(false);
   const tickRef = useRef(null);
 
   const refreshStatus = useCallback(async () => {
@@ -93,13 +94,18 @@ export function useStatus() {
     refreshStatus();
   }, [refreshStatus]);
 
-  // Listen for POLL_DONE broadcast
+  // Listen for broadcast messages from service worker
   useEffect(() => {
     if (typeof chrome === 'undefined' || !chrome.runtime) return;
 
     const onMessage = (msg) => {
       if (msg.type === 'POLL_DONE') {
+        setWxTabMissing(false);
         refreshStatus();
+      } else if (msg.type === 'NO_WX_TAB') {
+        setWxTabMissing(true);
+      } else if (msg.type === 'CAPTURE_ERROR') {
+        console.warn('[WeCatch] capture error:', msg.error);
       }
     };
 
@@ -125,6 +131,7 @@ export function useStatus() {
     newCount,
     countdown,
     interval,
+    wxTabMissing,
     refreshStatus,
     changeInterval,
   };
