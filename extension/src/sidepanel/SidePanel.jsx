@@ -25,7 +25,18 @@ async function detectWxTab() {
  */
 export default function SidePanel() {
   const [wxTabExists, setWxTabExists] = useState(null); // null = loading
-  const { lastRun, newCount, countdown, interval, wxTabMissing, changeInterval } = useStatus();
+  const {
+    lastRun,
+    newCount,
+    countdown,
+    interval,
+    wxTabMissing,
+    changeInterval,
+    isCapturing,
+    progress,
+    errorMsg,
+    triggerNow,
+  } = useStatus();
 
   const refresh = useCallback(async () => {
     const exists = await detectWxTab();
@@ -60,6 +71,14 @@ export default function SidePanel() {
     };
   }, [refresh]);
 
+  /**
+   * Called by ControlCard when FETCH_ARTICLES returns no_wx_tab.
+   * Triggers the GuideView by marking wxTabExists as false.
+   */
+  const handleNoWxTab = useCallback(() => {
+    setWxTabExists(false);
+  }, []);
+
   // Loading state — blank while we detect tabs
   if (wxTabExists === null) {
     return <div className="sidepanel" />;
@@ -77,7 +96,19 @@ export default function SidePanel() {
       ) : (
         <>
           <StatusCard lastRun={lastRun} newCount={newCount} countdown={countdown} />
-          <ControlCard interval={interval} onChangeInterval={changeInterval} />
+          <ControlCard
+            interval={interval}
+            onChangeInterval={changeInterval}
+            isCapturing={isCapturing}
+            progress={progress}
+            onTriggerNow={triggerNow}
+            onNoWxTab={handleNoWxTab}
+          />
+          {errorMsg && (
+            <div className="error-banner">
+              {errorMsg}
+            </div>
+          )}
           <DashboardButton />
         </>
       )}

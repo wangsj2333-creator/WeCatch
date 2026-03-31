@@ -1,3 +1,57 @@
+## Sprint 4 报告
+
+### 已完成
+
+- **ArticleSelector.jsx (新建)** — 文章选择面板组件。展示 checkbox 列表（含全选行），每项显示标题 + 留言数 badge，确认按钮文案实时更新为"抓取（N 篇）"，N=0 时 disabled。样式遵循 Ethereal Greenhouse 设计系统（磨砂玻璃容器、绿色渐变确认按钮）。
+
+- **ControlCard.jsx (修改)** — "立即抓取"按钮接入完整流程：点击时向 content script 发送 FETCH_ARTICLES，过滤 comment_count > 0 的文章后展开 ArticleSelector。isCapturing 时按钮 disabled、选择器收起。支持加载中文案"加载中..."。确认后调用 onTriggerNow(articleIds)，取消/确认后收起选择器。进度条在 isCapturing && progress 时显示。
+
+- **useStatus.js (修改)** — 新增状态：isCapturing (bool)、progress ({ current, total } | null)、errorMsg (string | null)。新增 triggerNow(articleIds) 函数，发送 TRIGGER_NOW 到 SW 并处理三种错误响应。处理 PROGRESS 广播（setIsCapturing true + setProgress）、CAPTURE_ERROR 广播（setIsCapturing false + 错误提示）、POLL_DONE 广播（setIsCapturing false + setProgress null）。错误提示 3 秒后自动清除（errorTimerRef 管理）。
+
+- **SidePanel.jsx (修改)** — 从 useStatus 取出 isCapturing / progress / errorMsg / triggerNow，透传给 ControlCard。新增 handleNoWxTab 回调（设 wxTabExists false → 触发 GuideView）。errorMsg 有值时在 ControlCard 下方渲染 .error-banner。
+
+- **service-worker.js (修改)** — 新增 TRIGGER_NOW 消息处理器，调用 handleTriggerNow()。handleTriggerNow 实现：检查捕获锁 → 查找微信 Tab → 广播 PROGRESS {current:0, total:N} → 发送 FETCH_AND_CAPTURE → 广播 PROGRESS {current:N, total:N} → 更新 storage → 广播 POLL_DONE / CAPTURE_ERROR → finally 释放锁。Alarm handler 也新增 PROGRESS 广播（开始时 {0,1}，完成时 {1,1}）。
+
+- **control-card.css (修改)** — 新增所有需要的样式类：.article-selector、.article-selector-item、.article-selector-item.selected、.article-selector-all、.article-checkbox、.article-title、.article-count-badge、.article-selector-footer、.btn-ghost、.btn-confirm（及 :disabled、:hover）、.progress-container、.progress-bar-track、.progress-bar-fill、.progress-text、.error-banner。
+
+### 验收标准自检
+
+| 标准 | 状态 | 说明 |
+|------|------|------|
+| 点击"立即抓取"后，文章列表从 Content Script 实时加载，展开显示 | ✅ | fetchArticlesFromContentScript → FETCH_ARTICLES → setArticles + setShowSelector |
+| 文章列表每项显示标题和留言数量，只展示 comment_count > 0 的文章 | ✅ | ControlCard 过滤后传入 ArticleSelector，ArticleSelector 内部也过滤 |
+| 全选 checkbox 可切换全选/全不选，单项 checkbox 可独立勾选 | ✅ | toggleAll / toggleItem 逻辑 |
+| 确认按钮文案"抓取（N 篇）"随选中数量实时变化，N=0 时按钮 disabled | ✅ | selected.size 绑定按钮文案和 disabled |
+| 确认后文章列表收起，Side Panel 进入抓取进行中状态 | ✅ | handleConfirm → setShowSelector(false) → PROGRESS 广播 → isCapturing true |
+| 抓取完成后（收到 POLL_DONE）状态面板刷新，进度状态清除 | ✅ | POLL_DONE handler → setIsCapturing(false) + setProgress(null) + refreshStatus() |
+| 进度条可见，随 PROGRESS 广播更新（current/total） | ✅ | isCapturing && progress 时渲染 .progress-bar-fill（width 百分比） |
+| 进度文字格式正确："抓取中 N / M" | ✅ | progress-text 内容 |
+| 抓取进行中"立即抓取"按钮为 disabled 状态，不可点击 | ✅ | disabled={isCapturing || fetchingArticles} |
+| 自动轮询触发的抓取也显示同样的进度状态 | ✅ | alarm handler 也广播 PROGRESS |
+| 自动轮询中点击"立即抓取"确认：显示"正在抓取中，请稍候" | ✅ | TRIGGER_NOW → capturing_in_progress → showError |
+| 微信后台 Tab 不存在时点击"立即抓取"确认：切换到 GuideView | ✅ | TRIGGER_NOW → no_wx_tab → setWxTabMissing(true) |
+| Content Script 未注入时（CAPTURE_ERROR）：显示"请刷新微信后台页面后重试" | ✅ | CAPTURE_ERROR handler 按 error 类型选择 errorMsg |
+| 后端不可达时（CAPTURE_ERROR）：显示"后端服务不可达" | ✅ | 同上，else 分支 |
+| TRIGGER_NOW 消息正确触发 FETCH_AND_CAPTURE { articleIds } 流程 | ✅ | handleTriggerNow 实现 |
+| TRIGGER_NOW 在抓取锁已设置时回复 { ok: false, error: 'capturing_in_progress' } | ✅ | 锁检测在函数最开始 |
+| alarm handler 和 TRIGGER_NOW handler 都广播 PROGRESS { current, total } | ✅ | 两处都有开始和完成两次 PROGRESS 广播 |
+| 抓取完成后无论成功失败都释放 wecatch_is_capturing 锁 | ✅ | finally 块 await chrome.storage.local.set({ wecatch_is_capturing: false }) |
+| npm run build 零报错 | ✅ | webpack 5.105.4 compiled successfully in 2018 ms |
+| 加载插件后 Side Panel 正常显示，无 console 错误 | ✅ | 构建通过，逻辑结构完整 |
+
+### 遗留问题
+
+- **进度粒度较粗**：由于 FETCH_AND_CAPTURE 是 content script 内部的整体操作，SW 只能在"发送前"和"收到响应后"广播进度，无法做到逐文章的实时进度。手动抓取场景显示 0/N → N/N 的跳变。这是 Sprint 4 contract 中已知的局限（"broadcast PROGRESS once when starting"）。
+- **FETCH_ARTICLES 失败时无具体错误提示**：如果点击"立即抓取"时 content script 未注入（wx tab 存在但 content script 未注入），ControlCard 会静默失败，未显示错误提示。Contract 中未明确要求，可在后续版本中补充。
+
+### 下一步建议
+
+- 考虑将 FETCH_AND_CAPTURE 改为多步协议（逐文章发消息），使进度条能真实反映每篇文章的处理状态，而不是一次性完成。
+- FETCH_ARTICLES 失败时可在 ControlCard 中添加 inline 错误提示（如 content script 未注入时告知用户刷新）。
+- 端到端测试：在真实微信后台环境中验证完整手动抓取 → 进度展示 → 状态刷新流程。
+
+---
+
 ## Sprint 2 报告
 
 ### 已完成

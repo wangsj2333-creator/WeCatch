@@ -57,3 +57,177 @@
 .btn-primary:not(:disabled):hover {
   opacity: 0.9;
 }
+
+/* =====================
+   Article Selector
+   ===================== */
+.article-selector {
+  background: rgba(255, 255, 255, 0.70);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 109, 72, 0.12);
+  padding: 8px;
+  margin-top: 12px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.article-selector-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  user-select: none;
+}
+
+.article-selector-item:hover {
+  background: #f5fef9;
+}
+
+.article-selector-item.selected {
+  background: #ddf2ec;
+}
+
+.article-selector-all {
+  border-bottom: 1px solid rgba(0, 109, 72, 0.08);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.article-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #006d48;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.article-title {
+  flex: 1;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  color: #1f3731;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.article-count-badge {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #006d48;
+  background: #ddf2ec;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.article-selector-empty {
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  color: #4b645e;
+  text-align: center;
+  padding: 12px 0;
+  margin: 0;
+}
+
+.article-selector-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(0, 109, 72, 0.08);
+  gap: 8px;
+}
+
+.btn-ghost {
+  padding: 8px 16px;
+  border: 1px solid rgba(0, 109, 72, 0.3);
+  border-radius: 12px;
+  background: transparent;
+  color: #006d48;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn-ghost:hover {
+  opacity: 0.75;
+}
+
+.btn-confirm {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #006d48, #52b788);
+  color: #ffffff;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn-confirm:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btn-confirm:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+/* =====================
+   Progress Bar
+   ===================== */
+.progress-container {
+  margin-top: 12px;
+}
+
+.progress-bar-track {
+  height: 6px;
+  background: #ddf2ec;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 6px;
+  background: linear-gradient(135deg, #006d48, #52b788);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  color: #4b645e;
+  margin-top: 4px;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+/* =====================
+   Error Banner
+   ===================== */
+.error-banner {
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  color: #b91c1c;
+  background: rgba(254, 226, 226, 0.85);
+  border: 1px solid rgba(185, 28, 28, 0.2);
+  border-radius: 12px;
+  padding: 10px 14px;
+  text-align: center;
+  margin-top: 8px;
+}

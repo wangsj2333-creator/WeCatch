@@ -45,7 +45,8 @@ export function formatCountdown(ms) {
 
 /**
  * Custom hook that manages capture status and alarm countdown.
- * Exposes: lastRun, newCount, countdown, interval, refreshStatus, setInterval
+ * Exposes: lastRun, newCount, countdown, interval, refreshStatus, setInterval,
+ *          isCapturing, progress, errorMsg, triggerNow
  */
 export function useStatus() {
   const [lastRun, setLastRun] = useState(null);
@@ -54,7 +55,11 @@ export function useStatus() {
   const [countdown, setCountdown] = useState('--:--');
   const [interval, setIntervalValue] = useState(DEFAULT_INTERVAL);
   const [wxTabMissing, setWxTabMissing] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [progress, setProgress] = useState(null); // { current, total } | null
+  const [errorMsg, setErrorMsg] = useState(null); // string | null
   const tickRef = useRef(null);
+  const errorTimerRef = useRef(null);
 
   const refreshStatus = useCallback(async () => {
     const status = await sendToSW({ type: 'GET_STATUS' });
@@ -94,6 +99,23 @@ export function useStatus() {
     refreshStatus();
   }, [refreshStatus]);
 
+  /**
+   * Shows an error message and auto-clears it after 3 seconds.
+   * @param {string} msg
+   */
+  const showError = useCallback((msg) => {
+    setErrorMsg(msg);
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+    errorTimerRef.current = setTimeout(() => setErrorMsg(null), 3000);
+  }, []);
+
+  // Cleanup error timer on unmount
+  useEffect(() => {
+    return () => {
+      if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+    };
+  }, []);
+
   // Listen for broadcast messages from service worker
   useEffect(() => {
     if (typeof chrome === 'undefined' || !chrome.runtime) return;
@@ -101,18 +123,31 @@ export function useStatus() {
     const onMessage = (msg) => {
       if (msg.type === 'POLL_DONE') {
         setWxTabMissing(false);
+        setIsCapturing(false);
+        setProgress(null);
         refreshStatus();
       } else if (msg.type === 'NO_WX_TAB') {
         setWxTabMissing(true);
       } else if (msg.type === 'CAPTURE_ERROR') {
         setWxTabMissing(false);
+        setIsCapturing(false);
+        setProgress(null);
         console.warn('[WeCatch] capture error:', msg.error);
+        if (msg.error === 'content_script_not_injected') {
+          showError('请刷新微信后台页面后重试');
+        } else {
+          // backend_unreachable or any other error
+          showError('后端服务不可达');
+        }
+      } else if (msg.type === 'PROGRESS') {
+        setIsCapturing(true);
+        setProgress({ current: msg.current, total: msg.total });
       }
     };
 
     chrome.runtime.onMessage.addListener(onMessage);
     return () => chrome.runtime.onMessage.removeListener(onMessage);
-  }, [refreshStatus]);
+  }, [refreshStatus, showError]);
 
   /**
    * Changes the poll interval. Sends SET_INTERVAL to service worker and refreshes status.
@@ -127,6 +162,26 @@ export function useStatus() {
     }
   }, [refreshStatus]);
 
+  /**
+   * Triggers a manual capture for the given article IDs.
+   * Sends TRIGGER_NOW to the service worker and handles error responses.
+   * @param {string[]} articleIds
+   */
+  const triggerNow = useCallback(async (articleIds) => {
+    const resp = await sendToSW({ type: 'TRIGGER_NOW', articleIds });
+    if (!resp) return;
+    if (!resp.ok) {
+      if (resp.error === 'capturing_in_progress') {
+        showError('正在抓取中，请稍候');
+      } else if (resp.error === 'no_wx_tab') {
+        setWxTabMissing(true);
+      } else {
+        showError('抓取失败，请重试');
+      }
+    }
+    // On success, progress state will be set via PROGRESS broadcast from SW
+  }, [showError]);
+
   return {
     lastRun,
     newCount,
@@ -135,5 +190,9 @@ export function useStatus() {
     wxTabMissing,
     refreshStatus,
     changeInterval,
+    isCapturing,
+    progress,
+    errorMsg,
+    triggerNow,
   };
 }

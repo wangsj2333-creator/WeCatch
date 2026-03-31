@@ -73,6 +73,10 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     }
 
     const tab = tabs[0];
+
+    // Broadcast initial progress (total unknown at this point, use 1 as placeholder)
+    broadcastMessage({ type: 'PROGRESS', current: 0, total: 1 });
+
     let response;
     try {
       response = await chrome.tabs.sendMessage(tab.id, { type: 'FETCH_AND_CAPTURE' });
@@ -91,6 +95,9 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
     const { articles, newTopLevelCount } = response.data;
     const lastRun = new Date().toISOString();
+
+    // Broadcast completion progress
+    broadcastMessage({ type: 'PROGRESS', current: 1, total: 1 });
 
     await chrome.storage.local.set({
       wecatch_articles: articles,
@@ -128,6 +135,13 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return true;
   }
 
+  if (msg.type === 'TRIGGER_NOW') {
+    handleTriggerNow(msg.articleIds)
+      .then(result => sendResponse(result))
+      .catch(err => sendResponse({ ok: false, error: err.message }));
+    return true;
+  }
+
   if (msg.type === 'START_CAPTURE') {
     handleCapture(msg.articleIds)
       .then(() => sendResponse({ ok: true }))
@@ -154,6 +168,83 @@ async function handleGetStatus() {
     newCount: wecatch_last_new_count ?? null,
     nextAlarmTime: alarm ? alarm.scheduledTime : null,
   };
+}
+
+// ─────────────────────────────────────────
+// TRIGGER_NOW handler
+// ─────────────────────────────────────────
+
+/**
+ * Handles a manual capture request from the Side Panel.
+ * Respects the capturing lock and broadcasts PROGRESS / POLL_DONE / CAPTURE_ERROR.
+ * @param {string[]} articleIds
+ * @returns {Promise<{ ok: boolean, error?: string }>}
+ */
+async function handleTriggerNow(articleIds) {
+  // Check capturing lock
+  const { wecatch_is_capturing } = await chrome.storage.local.get('wecatch_is_capturing');
+  if (wecatch_is_capturing) {
+    return { ok: false, error: 'capturing_in_progress' };
+  }
+
+  // Set lock
+  await chrome.storage.local.set({ wecatch_is_capturing: true });
+  try {
+    // Find WeChat tab
+    const tabs = await chrome.tabs.query({ url: 'https://mp.weixin.qq.com/*' });
+    if (tabs.length === 0) {
+      return { ok: false, error: 'no_wx_tab' };
+    }
+
+    const tab = tabs[0];
+    const total = articleIds ? articleIds.length : 1;
+
+    // Broadcast initial progress
+    broadcastMessage({ type: 'PROGRESS', current: 0, total: total > 0 ? total : 1 });
+
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tab.id, {
+        type: 'FETCH_AND_CAPTURE',
+        articleIds: articleIds || [],
+      });
+    } catch (e) {
+      if (e.message && e.message.includes('Could not establish connection')) {
+        broadcastMessage({ type: 'CAPTURE_ERROR', error: 'content_script_not_injected' });
+        return { ok: false, error: 'content_script_not_injected' };
+      }
+      throw e;
+    }
+
+    if (!response || !response.ok) {
+      const error = response?.error || 'unknown';
+      broadcastMessage({ type: 'CAPTURE_ERROR', error });
+      return { ok: false, error };
+    }
+
+    const { articles, newTopLevelCount } = response.data;
+    const lastRun = new Date().toISOString();
+
+    // Broadcast completion progress
+    broadcastMessage({ type: 'PROGRESS', current: total > 0 ? total : 1, total: total > 0 ? total : 1 });
+
+    await chrome.storage.local.set({
+      wecatch_articles: articles,
+      wecatch_last_run: lastRun,
+      wecatch_last_new_count: newTopLevelCount,
+    });
+
+    if (response.data.error) {
+      console.warn('[wecatch] TRIGGER_NOW completed with analyze error:', response.data.error);
+      broadcastMessage({ type: 'CAPTURE_ERROR', error: response.data.error });
+      return { ok: false, error: response.data.error };
+    }
+
+    broadcastMessage({ type: 'POLL_DONE', lastRun, newCount: newTopLevelCount });
+    return { ok: true };
+  } finally {
+    await chrome.storage.local.set({ wecatch_is_capturing: false });
+  }
 }
 
 // ─────────────────────────────────────────
