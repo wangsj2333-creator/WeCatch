@@ -105,6 +105,7 @@ export function useStatus() {
       } else if (msg.type === 'NO_WX_TAB') {
         setWxTabMissing(true);
       } else if (msg.type === 'CAPTURE_ERROR') {
+        setWxTabMissing(false);
         console.warn('[WeCatch] capture error:', msg.error);
       }
     };

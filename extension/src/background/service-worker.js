@@ -61,17 +61,52 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
   console.log('[wecatch] alarm fired');
 
-  // Sprint 2: broadcast POLL_DONE with current storage values (no real capture yet)
-  const { wecatch_last_run, wecatch_last_new_count } = await chrome.storage.local.get([
-    'wecatch_last_run',
-    'wecatch_last_new_count',
-  ]);
+  // Set capturing lock
+  await chrome.storage.local.set({ wecatch_is_capturing: true });
+  try {
+    // Find WeChat backend tab
+    const tabs = await chrome.tabs.query({ url: 'https://mp.weixin.qq.com/*' });
+    if (tabs.length === 0) {
+      console.log('[wecatch] no WeChat tab found');
+      broadcastMessage({ type: 'NO_WX_TAB' });
+      return;
+    }
 
-  broadcastMessage({
-    type: 'POLL_DONE',
-    lastRun: wecatch_last_run ?? null,
-    newCount: wecatch_last_new_count ?? null,
-  });
+    const tab = tabs[0];
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tab.id, { type: 'FETCH_AND_CAPTURE' });
+    } catch (e) {
+      if (e.message && e.message.includes('Could not establish connection')) {
+        broadcastMessage({ type: 'CAPTURE_ERROR', error: 'content_script_not_injected' });
+        return;
+      }
+      throw e;
+    }
+
+    if (!response || !response.ok) {
+      broadcastMessage({ type: 'CAPTURE_ERROR', error: response?.error || 'unknown' });
+      return;
+    }
+
+    const { articles, newTopLevelCount } = response.data;
+    const lastRun = new Date().toISOString();
+
+    await chrome.storage.local.set({
+      wecatch_articles: articles,
+      wecatch_last_run: lastRun,
+      wecatch_last_new_count: newTopLevelCount,
+    });
+
+    if (response.data.error) {
+      console.warn('[wecatch] capture completed with analyze error:', response.data.error);
+      broadcastMessage({ type: 'CAPTURE_ERROR', error: response.data.error });
+    }
+
+    broadcastMessage({ type: 'POLL_DONE', lastRun, newCount: newTopLevelCount });
+  } finally {
+    await chrome.storage.local.set({ wecatch_is_capturing: false });
+  }
 });
 
 // ─────────────────────────────────────────
@@ -98,6 +133,11 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       .then(() => sendResponse({ ok: true }))
       .catch(err => sendResponse({ error: err.message }));
     return true;
+  }
+
+  if (msg.type === 'OPEN_WX_TAB') {
+    chrome.tabs.create({ url: 'https://mp.weixin.qq.com' });
+    return false;
   }
 });
 
@@ -162,6 +202,5 @@ async function handleCapture(articleIds) {
     results.push(data);
   }
 
-  await chrome.storage.session.set({ wecatchResults: results });
   chrome.runtime.sendMessage({ type: 'CAPTURE_DONE', total: results.length });
 }
