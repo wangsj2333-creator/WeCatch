@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "WeCatch",
+  "version": "0.2.0",
+  "description": "Capture and classify WeChat public account comments",
+  "permissions": [
+    "storage",
+    "alarms",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "https://mp.weixin.qq.com/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://mp.weixin.qq.com/*"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "WeCatch"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  }
+}
